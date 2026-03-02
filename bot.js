@@ -13,7 +13,7 @@ function createBot() {
     host: SERVER_HOST,
     port: SERVER_PORT,
     username: BOT_USERNAME,
-    version: '1.21.4', // Pastikan library mineflayer lo sudah versi terbaru!
+    version: 'false', // Pastikan library mineflayer lo sudah versi terbaru!
     auth: 'offline',
     checkTimeoutInterval: 60000
   })
