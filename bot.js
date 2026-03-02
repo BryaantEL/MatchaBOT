@@ -14,14 +14,14 @@ let bot;
 function createBot() {
     console.log(`[BOT] Mencoba koneksi ke ${CONFIG.host}:${CONFIG.port}...`)
     
-    bot = mineflayer.createBot({
-        host: CONFIG.host,
-        port: CONFIG.port,
-        username: CONFIG.username,
-        version: CONFIG.version,
-        auth: 'offline',
-        checkTimeoutInterval: 60000
-    })
+bot = mineflayer.createBot({
+    host: 'ISI_IP_ANGKA_SERVER_LO', // Pake IP angka!
+    port: 26770,
+    username: 'MatchaLord',
+    version: false, // Biar dia deteksi otomatis
+    hideErrors: false, // Biar kita tau error aslinya apa di log bot
+    auth: 'offline'
+})
 
     // Handle Login & Spawn
     bot.once('spawn', () => {
