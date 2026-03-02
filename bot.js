@@ -9,14 +9,15 @@ const SERVER_PORT = 26770
 let isFirstLogin = true
 
 function createBot() {
-  const bot = mineflayer.createBot({
+    const bot = mineflayer.createBot({
     host: SERVER_HOST,
     port: SERVER_PORT,
     username: BOT_USERNAME,
-    version: '1.21.4',
-    auth: 'offline'
+    version: '1.21.4', // Pastikan library mineflayer lo sudah versi terbaru!
+    auth: 'offline',
+    checkTimeoutInterval: 60000
   })
-
+  
   bot.on('login', () => {
     console.log('[BOT] Login berhasil ke server!')
   })
