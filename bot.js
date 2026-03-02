@@ -1,92 +1,54 @@
 const mineflayer = require('mineflayer')
 
-// Config
-const BOT_PASSWORD = 'boba123'
-const BOT_USERNAME = 'MatchaLord'
-const SERVER_HOST = 'us.freegamehost.xyz'
-const SERVER_PORT = 26770
-
-let isFirstLogin = true
-
-function createBot() {
-    const bot = mineflayer.createBot({
-    host: SERVER_HOST,
-    port: SERVER_PORT,
-    username: BOT_USERNAME,
-    version: 'false', // Pastikan library mineflayer lo sudah versi terbaru!
-    auth: 'offline',
-    checkTimeoutInterval: 60000
-  })
-  
-  bot.on('login', () => {
-    console.log('[BOT] Login berhasil ke server!')
-  })
-
-  bot.on('spawn', () => {
-    console.log('[BOT] Bot spawn di server!')
-
-    if (isFirstLogin) {
-      console.log('[BOT] Attempting to register...')
-      setTimeout(() => {
-        bot.chat(`/register ${BOT_PASSWORD} ${BOT_PASSWORD}`)
-      }, 2000)
-      setTimeout(() => {
-        bot.chat(`/login ${BOT_PASSWORD}`)
-        isFirstLogin = false
-      }, 4000)
-    } else {
-      console.log('[BOT] Attempting to login...')
-      setTimeout(() => {
-        bot.chat(`/login ${BOT_PASSWORD}`)
-      }, 2000)
-    }
-
-    // Anti-AFK: Jump setiap 25 detik
-    setInterval(() => {
-      bot.setControlState('jump', true)
-      setTimeout(() => {
-        bot.setControlState('jump', false)
-      }, 500)
-    }, 25000)
-
-    // Gerak random setiap 1 menit
-    setInterval(() => {
-      const yaw = Math.random() * Math.PI * 2
-      bot.look(yaw, 0)
-    }, 60000)
-  })
-
-  bot.on('kicked', (reason) => {
-    console.log('[BOT] Bot dikick:', reason)
-    console.log('[BOT] Reconnecting dalam 60 detik...')
-    setTimeout(createBot, 60000)
-  })
-
-  bot.on('error', (err) => {
-    console.log('[BOT] Error:', err.message)
-    console.log('[BOT] Reconnecting dalam 60 detik...')
-    setTimeout(createBot, 60000)
-  })
-
-  bot.on('end', () => {
-    console.log('[BOT] Disconnect dari server')
-    console.log('[BOT] Reconnecting dalam 60 detik...')
-    setTimeout(createBot, 60000)
-  })
-
-  bot.on('message', (message) => {
-    const msg = message.toString()
-    console.log('[CHAT]', msg)
-
-    if (msg.includes('successfully registered') || msg.includes('berhasil terdaftar')) {
-      console.log('[BOT] ✅ Register berhasil!')
-    }
-    if (msg.includes('successfully logged in') || msg.includes('berhasil login')) {
-      console.log('[BOT] ✅ Login berhasil!')
-    }
-  })
+// --- CONFIGURATION ---
+const CONFIG = {
+    host: 'us.freegamehost.xyz', // Ganti jadi '0.0.0.0' kalau satu project Railway
+    port: 26770,
+    username: 'MatchaLord',
+    password: 'boba123',
+    version: '1.21.4'
 }
 
-console.log(`[BOT] Starting ${BOT_USERNAME} KeepAlive Bot...`)
-console.log(`[BOT] Server: ${SERVER_HOST}:${SERVER_PORT}`)
+let bot;
+
+function createBot() {
+    console.log(`[BOT] Mencoba koneksi ke ${CONFIG.host}:${CONFIG.port}...`)
+    
+    bot = mineflayer.createBot({
+        host: CONFIG.host,
+        port: CONFIG.port,
+        username: CONFIG.username,
+        version: CONFIG.version,
+        auth: 'offline',
+        checkTimeoutInterval: 60000
+    })
+
+    // Handle Login & Spawn
+    bot.once('spawn', () => {
+        console.log('[BOT] Berhasil masuk ke server!')
+        
+        // Delay login/register biar gak instan kena kick
+        setTimeout(() => {
+            bot.chat(`/register ${CONFIG.password} ${CONFIG.password}`)
+            bot.chat(`/login ${CONFIG.password}`)
+        }, 5000)
+
+        // Anti-AFK: Lompat tiap 30 detik
+        setInterval(() => {
+            bot.setControlState('jump', true)
+            setTimeout(() => bot.setControlState('jump', false), 500)
+        }, 30000)
+    })
+
+    // Biar gak spam reconnect kalau error
+    bot.on('error', (err) => console.log('[BOT] Error:', err.message))
+    
+    bot.on('kicked', (reason) => console.log('[BOT] Dikick:', reason))
+
+    bot.on('end', () => {
+        console.log('[BOT] Terputus. Menunggu 30 detik sebelum mencoba lagi...')
+        setTimeout(createBot, 30000) // Jeda 30 detik biar gak nyepam log
+    })
+}
+
 createBot()
